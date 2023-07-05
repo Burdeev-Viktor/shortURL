@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Short link</title>
+</head>
+<body>
+<form th:action="@{create-link}" th:method="post" th:object="${link}">
+    <label for="original">Original:</label>
+    <input th:type="text" id = "original" style="width: 250px" th:field="*{origin}">
+    <label for="generated">Shorted:</label>
+    <input th:type="text" id = "generated" style="width: 250px" th:value="${link.getGenatatedLinck()}"  readonly>
+    <input th:type="submit" th:text="Short">
+</form>
+</body>
+</html>
