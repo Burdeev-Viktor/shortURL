@@ -23,7 +23,7 @@ public class Link {
     private String origin;
     @Column(name = "date_del")
     private Date dateDel;
-    public String getGenatatedLinck(){
+    public String getGeneratedLink(){
         if(origin != null)
             return Const.urlRedirect + generated;
         return null;

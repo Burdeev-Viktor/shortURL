@@ -1,4 +1,4 @@
-package org.example.reposytory;
+package org.example.repository;
 
 import org.example.model.Link;
 import org.springframework.data.jpa.repository.JpaRepository;

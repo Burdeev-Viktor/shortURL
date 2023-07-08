@@ -1,21 +1,20 @@
 package org.example.controllers;
 
-import org.example.Const;
-import org.example.Service.LinkSQLService;
+import org.example.Service.LinkService;
 import org.example.model.Link;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import java.util.Random;
+
 
 @Controller
-public class Links {
-    private final LinkSQLService linkSQLService;
+public class LinksController {
+    private final LinkService linkService;
 
-    public Links(LinkSQLService linkSQLService) {
-        this.linkSQLService = linkSQLService;
+    public LinksController(LinkService linkService) {
+        this.linkService = linkService;
     }
 
 
@@ -26,7 +25,7 @@ public class Links {
     }
     @RequestMapping(value = "/create-link",method = RequestMethod.POST)
     public String saveLink(Model model,Link link){
-    link = linkSQLService.create(link);
+    link = linkService.save(link);
     System.out.println(link.getOrigin());
         model.addAttribute("link",link);
         return "link";

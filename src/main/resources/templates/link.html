@@ -5,12 +5,14 @@
     <title>Short link</title>
 </head>
 <body>
-<form th:action="@{create-link}" th:method="post" th:object="${link}">
-    <label for="original">Original:</label>
-    <input th:type="text" id = "original" style="width: 250px" th:field="*{origin}">
-    <label for="generated">Shorted:</label>
-    <input th:type="text" id = "generated" style="width: 250px" th:value="${link.getGenatatedLinck()}"  readonly>
-    <input th:type="submit" th:text="Short">
-</form>
+<div>
+    <form th:action="@{create-link}" th:method="post" th:object="${link}" style="display: inline-grid;">
+        <label for="original">Original:</label>
+        <input th:type="text" id = "original" style="width: 250px" th:field="*{origin}">
+        <label for="generated">Shorted:</label>
+        <input th:type="text" id = "generated" style="width: 250px" th:value="${link.getGeneratedLink()}" readonly>
+        <input th:type="submit" th:value="Shorting">
+    </form>
+</div>
 </body>
 </html>
