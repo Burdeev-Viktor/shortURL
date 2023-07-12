@@ -1,10 +1,7 @@
 package org.example.model;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import javax.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.Const;
@@ -17,16 +14,19 @@ import java.util.Date;
 @Table(name = "links")
 public class Link {
     @Id
-    @Column(name = "`generated`")
-    private String generated;
+    @Column(name = "id_link")
+    private String id;
     @Column(name = "origin")
     private String origin;
     @Column(name = "date_del")
     private Date dateDel;
     public String getGeneratedLink(){
         if(origin != null)
-            return Const.urlRedirect + generated;
+            return Const.urlRedirect + id;
         return null;
     }
+    @ManyToOne
+    @JoinColumn(name="id_user")
+    private User user;
 
 }

@@ -18,6 +18,7 @@ public class LinksController {
     }
 
 
+
     @RequestMapping(value = "/create-link",method = RequestMethod.GET)
     public String createLink(Model model){
     model.addAttribute("link",new Link());

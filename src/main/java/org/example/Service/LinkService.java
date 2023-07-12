@@ -3,12 +3,10 @@ package org.example.Service;
 import org.example.model.Link;
 import org.example.repository.LinkSQLRepo;
 import org.example.repository.LinkRedisRepo;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Random;
+import java.util.*;
 
 @Service
 public class LinkService {
@@ -19,10 +17,12 @@ public class LinkService {
 
     private static  LinkSQLRepo linkSQLRepo;
     private final LinkRedisRepo linkRedisRepo;
+    private final  UserService userService;
 
-    public LinkService(LinkSQLRepo linkSQLRepo, LinkRedisRepo linkRedisRepo) {
+    public LinkService(LinkSQLRepo linkSQLRepo, LinkRedisRepo linkRedisRepo, UserService userService) {
         LinkService.linkSQLRepo = linkSQLRepo;
         this.linkRedisRepo = linkRedisRepo;
+        this.userService = userService;
     }
 
     public Link save(Link link){
@@ -36,7 +36,7 @@ public class LinkService {
     }
     private static void createLink(Link link){
         do {
-            link.setGenerated(getRandomKey());
+            link.setId(getRandomKey());
         }while (!checkUniqueness(link));
         setDateDel(link);
     }
@@ -59,14 +59,25 @@ public class LinkService {
         return result.reverse().toString();
     }
     private static boolean checkUniqueness(Link link){
-     return linkSQLRepo.findById(link.getGenerated()).isEmpty();
+     return linkSQLRepo.findById(link.getId()).isEmpty();
     }
     private static long getRandomLong(){
         Random random = new Random();
         return random.nextLong(LOWER_RANGE,UPPER_RANGE);
     }
     public void delLink(Link link){
-        linkSQLRepo.delLink(link.getGenerated());
-        linkRedisRepo.del(link.getGenerated());
+        linkSQLRepo.delLink(link.getId());
+        linkRedisRepo.del(link.getId());
+    }
+
+    public List<Link> findLinksByUser(UserDetails userDetails) {
+        return linkSQLRepo.findByUser(userService.findUserByLogin(userDetails.getUsername()));
+    }
+
+    public void saveByUser(Link newLink, UserDetails userDetails) {
+        newLink.setUser(userService.findUserByLogin(userDetails.getUsername()));
+        createLink(newLink);
+        linkSQLRepo.save(newLink);
+        linkRedisRepo.set(newLink);
     }
 }

@@ -12,7 +12,7 @@ public class LinkRedisRepo {
     private static Jedis jedis = pool.getResource();
 
     public void set(Link link){
-        jedis.set(link.getGenerated(), link.getOrigin());
+        jedis.set(link.getId(), link.getOrigin());
     }
     public String get(String key){
         return jedis.get(key);
