@@ -5,7 +5,6 @@ import javax.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.Const;
-
 import java.util.Date;
 
 @Entity

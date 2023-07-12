@@ -1,20 +1,18 @@
 package org.example.controllers;
 
-import org.example.Service.LinkService;
+import org.example.service.LinkService;
 import org.example.model.Link;
-import org.example.model.User;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
 import java.util.List;
 
 @Controller
 public class MainController {
-    private LinkService linkService;
+    private final LinkService linkService;
 
     public MainController(LinkService linkService) {
         this.linkService = linkService;
@@ -30,7 +28,6 @@ public class MainController {
     @RequestMapping(value = "/user/create-link",method = RequestMethod.POST)
     public String createLink(@AuthenticationPrincipal UserDetails userDetails,Model model,Link newLink){
         linkService.saveByUser(newLink,userDetails);
-
         return "redirect:/";
     }
 }

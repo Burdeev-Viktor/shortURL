@@ -1,4 +1,4 @@
-package org.example.Service;
+package org.example.service;
 
 import org.example.model.MyUserDetails;
 import org.example.model.User;
@@ -24,8 +24,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("Could not find user");
         }
-
         return new MyUserDetails(user);
     }
-
 }

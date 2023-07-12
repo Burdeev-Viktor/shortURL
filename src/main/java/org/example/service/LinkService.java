@@ -1,11 +1,10 @@
-package org.example.Service;
+package org.example.service;
 
 import org.example.model.Link;
 import org.example.repository.LinkSQLRepo;
 import org.example.repository.LinkRedisRepo;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
 
 @Service
@@ -14,7 +13,6 @@ public class LinkService {
     private static final long LOWER_RANGE = 56800235584L;
     private static final String BASE62_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     private static final int BASE62_BASE = BASE62_ALPHABET.length();
-
     private static  LinkSQLRepo linkSQLRepo;
     private final LinkRedisRepo linkRedisRepo;
     private final  UserService userService;
@@ -69,11 +67,9 @@ public class LinkService {
         linkSQLRepo.delLink(link.getId());
         linkRedisRepo.del(link.getId());
     }
-
     public List<Link> findLinksByUser(UserDetails userDetails) {
         return linkSQLRepo.findByUser(userService.findUserByLogin(userDetails.getUsername()));
     }
-
     public void saveByUser(Link newLink, UserDetails userDetails) {
         newLink.setUser(userService.findUserByLogin(userDetails.getUsername()));
         createLink(newLink);

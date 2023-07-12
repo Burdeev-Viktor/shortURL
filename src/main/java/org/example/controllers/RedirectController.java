@@ -1,6 +1,6 @@
 package org.example.controllers;
 
-import org.example.Service.LinkService;
+import org.example.service.LinkService;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.PathVariable;

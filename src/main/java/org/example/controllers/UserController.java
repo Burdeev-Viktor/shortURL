@@ -1,6 +1,6 @@
 package org.example.controllers;
 
-import org.example.Service.UserService;
+import org.example.service.UserService;
 import org.example.model.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,5 +37,4 @@ public class UserController {
         userService.save(user);
         return "redirect:/";
     }
-
 }

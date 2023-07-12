@@ -1,8 +1,7 @@
-package org.example.Service;
+package org.example.service;
 
 import org.example.model.User;
 import org.example.repository.UserRepository;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -10,12 +9,10 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
-
     public void save(User user) {
         if(userRepository.findUserByLogin(user.getLogin()) == null)
         {
@@ -23,19 +20,14 @@ public class UserService {
             userRepository.save(user);
         }
     }
-
     public void delete(User user) {
         userRepository.delete(user);
     }
-
     public User findUserByLogin(String login) {
         return userRepository.findUserByLogin(login);
     }
-
     public boolean userIsExistsByLoginAndPassword(User user) {
         return userRepository.existsByLoginAndPassword(user.getLogin(), passwordEncoder.encode(user.getPassword()));
     }
-
-
 }
 
