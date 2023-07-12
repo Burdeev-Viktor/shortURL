@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      lang="ru">
+<head>
+  <title>Sign up</title>
+  <meta charset="UTF-8">
+</head>
+<body>
+
+
+<form class="container-center" th:action="@{/sign-up}" method="post">
+  <div class="massage-fail" th:if="${param.error}">
+    Invalid login and password
+  </div>
+  <div class="massage-fail" th:if="${massageUserIsExist}">
+    Гser exists!
+  </div>
+  <div class="massage-fail" th:if="${massagePasswordsNotMatch}">
+    Password mismatch!
+  </div>
+  <div><label > login: <input  type="text" name="login"/> </label></div>
+  <div><label > password: <input  type="password" name="password"/> </label></div>
+  <div><label > repeat password: <input  type="password" name="confPassword"/> </label></div>
+  <div ><input  type="submit" value="Sign Up"/></div>
+</form>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form th:action="@{user/create-link}" th:method="post" th:object="${newLink}" style="display: inline-grid;">
+  <label for="original">Original:</label>
+  <input th:type="text" id = "original" style="width: 250px" th:field="*{origin}">
+  <input th:type="submit" th:value="Shorting">
+</form>
+<table>
+  <thead>
+  <tr>
+    <th class="th_train">Original</th>
+    <th class="th_train">Short</th>
+    <th class="th_train">Date delete</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="link : ${links}">
+    <td th:text="${link.origin}"></td>
+    <td th:text="${link.getGeneratedLink()}"></td>
+    <td th:text="${link.getDateDel()}"></td>
+  </tr>
+  </tbody>
+</table>
+</body>
+</html>
