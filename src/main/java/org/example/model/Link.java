@@ -28,4 +28,9 @@ public class Link {
     @JoinColumn(name="id_user")
     private User user;
 
+    public String toString() {
+        String var10000 = this.getId();
+        return "Link(\n id=" + var10000 + ",\n origin=" + this.getOrigin() + ",\n dateDel=" + String.valueOf(this.getDateDel()) + ",\n user=" + String.valueOf(this.getUser()) + ")";
+    }
+
 }

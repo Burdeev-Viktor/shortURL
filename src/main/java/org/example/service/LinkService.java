@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.apache.log4j.Logger;
 import org.example.model.Link;
 import org.example.repository.LinkSQLRepo;
 import org.example.repository.LinkRedisRepo;
@@ -16,6 +17,7 @@ public class LinkService {
     private static  LinkSQLRepo linkSQLRepo;
     private final LinkRedisRepo linkRedisRepo;
     private final  UserService userService;
+    private static final Logger log = Logger.getLogger(LinkService.class);
 
     public LinkService(LinkSQLRepo linkSQLRepo, LinkRedisRepo linkRedisRepo, UserService userService) {
         LinkService.linkSQLRepo = linkSQLRepo;
@@ -27,6 +29,7 @@ public class LinkService {
         createLink(link);
         linkSQLRepo.save(link);
         linkRedisRepo.set(link);
+        log.info("anonym saved link :\n" + link);
         return link;
     }
     public String findFastLink(String key){
@@ -75,5 +78,6 @@ public class LinkService {
         createLink(newLink);
         linkSQLRepo.save(newLink);
         linkRedisRepo.set(newLink);
+        log.info("user saved link :\n" + newLink);
     }
 }

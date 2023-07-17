@@ -26,4 +26,8 @@ public class User implements Serializable {
     private Set<Link> items;
     @Transient
     private String rPassword;
+    public String toString() {
+        Long var10000 = this.getId();
+        return "User(\nid=" + var10000 + ",\n login=" + this.getLogin() + ",\n password=" + this.getPassword() + ",\n name=" + this.getName() + ")";
+    }
 }
