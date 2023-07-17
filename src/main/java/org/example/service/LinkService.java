@@ -7,6 +7,7 @@ import org.example.repository.LinkRedisRepo;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class LinkService {
@@ -36,6 +37,7 @@ public class LinkService {
         return linkRedisRepo.get(key);
     }
     private static void createLink(Link link){
+        link.setActive(true);
         do {
             link.setId(getRandomKey());
         }while (!checkUniqueness(link));
@@ -71,13 +73,62 @@ public class LinkService {
         linkRedisRepo.del(link.getId());
     }
     public List<Link> findLinksByUser(UserDetails userDetails) {
-        return linkSQLRepo.findByUser(userService.findUserByLogin(userDetails.getUsername()));
+        List<Link> links = linkSQLRepo.findByUser(userService.findUserByLogin(userDetails.getUsername()));
+        links.stream().map(link -> {
+            if(link.isActive()){
+                link.setOrigin(linkRedisRepo.get(link.getId()));
+            }
+            return link;
+        }).collect(Collectors.toList());
+        return links;
     }
     public void saveByUser(Link newLink, UserDetails userDetails) {
         newLink.setUser(userService.findUserByLogin(userDetails.getUsername()));
         createLink(newLink);
-        linkSQLRepo.save(newLink);
         linkRedisRepo.set(newLink);
+        newLink.setOrigin(null);
+        linkSQLRepo.save(newLink);
         log.info("user saved link :\n" + newLink);
+    }
+
+    public void disableLink(String id, UserDetails userDetails) {
+        Link link = linkSQLRepo.findById(id).orElse(null);
+        if(link == null){
+            log.warn("required link is missing");
+            return;
+        }
+        if(!Objects.equals(link.getUser().getName(), userDetails.getUsername())){
+            log.warn("attempt to disable someone link by the user:" + userService.findUserByLogin(userDetails.getUsername()));
+            return;
+        }
+        disable(link);
+    }
+
+    private void disable(Link link) {
+        String original = linkRedisRepo.get(link.getId());
+        linkRedisRepo.del(link.getId());
+        link.setOrigin(original);
+        link.setActive(false);
+        linkSQLRepo.save(link);
+    }
+
+    public void enableLink(String id, UserDetails userDetails) {
+        Link link = linkSQLRepo.findById(id).orElse(null);
+        if(link == null){
+            log.warn("required link is missing");
+            return;
+        }
+        if(!Objects.equals(link.getUser().getName(), userDetails.getUsername())){
+            log.warn("attempt to enable someone link by the user:" + userService.findUserByLogin(userDetails.getUsername()));
+            return;
+        }
+        enable(link);
+    }
+
+    private void enable(Link link) {
+        linkRedisRepo.set(link);
+        link.setOrigin(null);
+        link.setActive(true);
+        linkSQLRepo.save(link);
     }
 }

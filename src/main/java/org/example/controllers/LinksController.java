@@ -24,7 +24,6 @@ public class LinksController {
     @RequestMapping(value = "/create-link", method = RequestMethod.POST)
     public String saveLink(Model model, Link link) {
         link = linkService.save(link);
-        System.out.println(link.getOrigin());
         model.addAttribute("link", link);
         return "link";
     }
