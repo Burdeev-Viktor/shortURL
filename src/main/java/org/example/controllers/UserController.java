@@ -21,7 +21,6 @@ public class UserController {
         model.addAttribute("user",new User());
         return "sign-in";
     }
-
     @RequestMapping(value = "/sign-up",method = RequestMethod.GET)
     public String signUp(Model model){
         System.out.println("dasdas");

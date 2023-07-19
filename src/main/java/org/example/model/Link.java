@@ -41,5 +41,4 @@ public class Link {
         String var10000 = this.getId();
         return "Link(\n id=" + var10000 + ",\n origin=" + this.getOrigin() + ",\n dateDel=" + String.valueOf(this.getDateDel()) + ",\n user=" + String.valueOf(this.getUser()) + ")";
     }
-
 }

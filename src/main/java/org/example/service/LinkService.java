@@ -69,7 +69,7 @@ public class LinkService {
         return random.nextLong(LOWER_RANGE,UPPER_RANGE);
     }
     public void delLink(Link link){
-        linkSQLRepo.delLink(link.getId());
+        linkSQLRepo.delete(link);
         linkRedisRepo.del(link.getId());
     }
     public List<Link> findLinksByUser(UserDetails userDetails) {
@@ -130,5 +130,18 @@ public class LinkService {
         link.setOrigin(null);
         link.setActive(true);
         linkSQLRepo.save(link);
+    }
+
+    public void removeLink(String id, UserDetails userDetails) {
+        Link link = linkSQLRepo.findById(id).orElse(null);
+        if(link == null){
+            log.warn("required link is missing");
+            return;
+        }
+        if(!Objects.equals(link.getUser().getName(), userDetails.getUsername())){
+            log.warn("attempt to remove someone link by the user:" + userService.findUserByLogin(userDetails.getUsername()));
+            return;
+        }
+        delLink(link);
     }
 }

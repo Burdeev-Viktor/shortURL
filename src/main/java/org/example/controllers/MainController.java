@@ -41,4 +41,9 @@ public class MainController {
         linkService.enableLink(id,userDetails);
         return "redirect:/";
     }
+    @RequestMapping(value = "/{id}",method = RequestMethod.DELETE)
+    public String removeLink(@PathVariable String id,@AuthenticationPrincipal UserDetails userDetails){
+        linkService.removeLink(id,userDetails);
+        return "redirect:/";
+    }
 }

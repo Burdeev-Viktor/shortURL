@@ -32,6 +32,11 @@
       <input style="background: red" th:type="submit" th:value="Disable">
     </form>
     </td>
+    <td>
+    <form  th:action="@{/{id}(id = ${link.id})}" th:method="DELETE">
+      <input style="background: orange" th:type="submit" th:value="remove">
+    </form>
+    </td>
   </tr>
   </tbody>
 </table>
