@@ -73,20 +73,12 @@ public class LinkService {
         linkRedisRepo.del(link.getId());
     }
     public List<Link> findLinksByUser(UserDetails userDetails) {
-        List<Link> links = linkSQLRepo.findByUser(userService.findUserByLogin(userDetails.getUsername()));
-        links.stream().map(link -> {
-            if(link.isActive()){
-                link.setOrigin(linkRedisRepo.get(link.getId()));
-            }
-            return link;
-        }).collect(Collectors.toList());
-        return links;
+        return linkSQLRepo.findByUser(userService.findUserByLogin(userDetails.getUsername()));
     }
     public void saveByUser(Link newLink, UserDetails userDetails) {
         newLink.setUser(userService.findUserByLogin(userDetails.getUsername()));
         createLink(newLink);
         linkRedisRepo.set(newLink);
-        newLink.setOrigin(null);
         linkSQLRepo.save(newLink);
         log.info("user saved link :\n" + newLink);
     }
@@ -105,9 +97,7 @@ public class LinkService {
     }
 
     private void disable(Link link) {
-        String original = linkRedisRepo.get(link.getId());
         linkRedisRepo.del(link.getId());
-        link.setOrigin(original);
         link.setActive(false);
         linkSQLRepo.save(link);
     }
@@ -127,7 +117,6 @@ public class LinkService {
 
     private void enable(Link link) {
         linkRedisRepo.set(link);
-        link.setOrigin(null);
         link.setActive(true);
         linkSQLRepo.save(link);
     }
