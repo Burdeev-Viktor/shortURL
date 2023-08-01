@@ -1,8 +1,8 @@
 package org.example.controllers.rest;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.JwtRequest;
-import org.example.dto.RegistrationUserDto;
+import org.example.dtos.jwt.JwtRequest;
+import org.example.dtos.user.RegistrationUserDto;
 import org.example.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

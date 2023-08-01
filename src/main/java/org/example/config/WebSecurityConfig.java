@@ -1,6 +1,7 @@
 package org.example.config;
 
 import org.example.service.UserDetailsService;
+import org.example.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,10 +20,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig {
     private final PasswordEncoder passwordEncoder;
-    private final UserDetailsService userService;
+    private final UserService userService;
     private final JwtRequestFilter jwtRequestFilter;
 
-    public WebSecurityConfig(PasswordEncoder passwordEncoder, UserDetailsService userService, JwtRequestFilter jwtRequestFilter) {
+    public WebSecurityConfig(PasswordEncoder passwordEncoder, UserService userService, JwtRequestFilter jwtRequestFilter) {
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
         this.jwtRequestFilter = jwtRequestFilter;
@@ -40,7 +41,7 @@ public class WebSecurityConfig {
                 .csrf().disable()
                 .cors().disable()
                 .authorizeRequests()
-                .antMatchers("/user").authenticated()
+                .antMatchers("/links").authenticated()
                 .anyRequest().permitAll()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)

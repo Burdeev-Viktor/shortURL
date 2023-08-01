@@ -1,7 +1,7 @@
 package org.example.service;
 
 import org.apache.log4j.Logger;
-import org.example.dto.RegistrationUserDto;
+import org.example.dtos.user.RegistrationUserDto;
 import org.example.model.User;
 import org.example.repository.UserRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

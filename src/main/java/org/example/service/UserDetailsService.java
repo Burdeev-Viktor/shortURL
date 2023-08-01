@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.stream.Collectors;
 
-@Service
+
 public class UserDetailsService implements org.springframework.security.core.userdetails.UserDetailsService {
     private static final Logger log = Logger.getLogger(UserDetailsService.class);
 

@@ -42,4 +42,7 @@ public class JwtTokenUtils {
                 .parseClaimsJws(token)
                 .getBody();
     }
+    public String getUsernameWhitsBearer(String token){
+        return this.getUsername(token.substring(7));
+    }
 }

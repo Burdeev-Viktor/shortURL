@@ -1,13 +1,17 @@
 package org.example.service;
 
 import org.apache.log4j.Logger;
+import org.example.dtos.link.IdLinkRequest;
+import org.example.dtos.link.LinkResponse;
+import org.example.dtos.link.NewLinkRequest;
+import org.example.jwt.JwtTokenUtils;
 import org.example.model.Link;
 import org.example.repository.LinkSQLRepo;
 import org.example.repository.LinkRedisRepo;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class LinkService {
@@ -19,11 +23,13 @@ public class LinkService {
     private final LinkRedisRepo linkRedisRepo;
     private final  UserService userService;
     private static final Logger log = Logger.getLogger(LinkService.class);
+    private final JwtTokenUtils jwtTokenUtils;
 
-    public LinkService(LinkSQLRepo linkSQLRepo, LinkRedisRepo linkRedisRepo, UserService userService) {
+    public LinkService(LinkSQLRepo linkSQLRepo, LinkRedisRepo linkRedisRepo, UserService userService, JwtTokenUtils jwtTokenUtils) {
         LinkService.linkSQLRepo = linkSQLRepo;
         this.linkRedisRepo = linkRedisRepo;
         this.userService = userService;
+        this.jwtTokenUtils = jwtTokenUtils;
     }
 
     public Link save(Link link){
@@ -71,48 +77,7 @@ public class LinkService {
     public void delLink(Link link){
         linkSQLRepo.delete(link);
         linkRedisRepo.del(link.getId());
-    }
-    public List<Link> findLinksByUser(UserDetails userDetails) {
-        return linkSQLRepo.findByUser(userService.findUserByLogin(userDetails.getUsername()));
-    }
-    public void saveByUser(Link newLink, UserDetails userDetails) {
-        newLink.setUser(userService.findUserByLogin(userDetails.getUsername()));
-        createLink(newLink);
-        linkRedisRepo.set(newLink);
-        linkSQLRepo.save(newLink);
-        log.info("user saved link :\n" + newLink);
-    }
-
-    public void disableLink(String id, UserDetails userDetails) {
-        Link link = linkSQLRepo.findById(id).orElse(null);
-        if(link == null){
-            log.warn("required link is missing");
-            return;
-        }
-        if(!Objects.equals(link.getUser().getName(), userDetails.getUsername())){
-            log.warn("attempt to disable someone link by the user:" + userService.findUserByLogin(userDetails.getUsername()));
-            return;
-        }
-        disable(link);
-    }
-
-    private void disable(Link link) {
-        linkRedisRepo.del(link.getId());
-        link.setActive(false);
-        linkSQLRepo.save(link);
-    }
-
-    public void enableLink(String id, UserDetails userDetails) {
-        Link link = linkSQLRepo.findById(id).orElse(null);
-        if(link == null){
-            log.warn("required link is missing");
-            return;
-        }
-        if(!Objects.equals(link.getUser().getName(), userDetails.getUsername())){
-            log.warn("attempt to enable someone link by the user:" + userService.findUserByLogin(userDetails.getUsername()));
-            return;
-        }
-        enable(link);
+        log.info("Link deleted:" + link);
     }
 
     private void enable(Link link) {
@@ -121,16 +86,53 @@ public class LinkService {
         linkSQLRepo.save(link);
     }
 
-    public void removeLink(String id, UserDetails userDetails) {
-        Link link = linkSQLRepo.findById(id).orElse(null);
+    public ResponseEntity<?> removeLink(IdLinkRequest idLinkRequest, String token) {
+        Link link = linkSQLRepo.findById(idLinkRequest.getId()).orElse(null);
         if(link == null){
-            log.warn("required link is missing");
-            return;
+            log.warn("link with this id does not exist:"+idLinkRequest.getId());
+            return ResponseEntity.status(203).body("link with this id does not exist:"+idLinkRequest.getId());
         }
-        if(!Objects.equals(link.getUser().getName(), userDetails.getUsername())){
-            log.warn("attempt to remove someone link by the user:" + userService.findUserByLogin(userDetails.getUsername()));
-            return;
+        if(!Objects.equals(link.getUser().getLogin(), jwtTokenUtils.getUsernameWhitsBearer(token))){
+            log.warn("link does not belong to user id link:" + idLinkRequest.getId() + ", username:" + jwtTokenUtils.getUsernameWhitsBearer(token));
+            return ResponseEntity.status(203).body("link does not belong to user:"+idLinkRequest.getId());
         }
         delLink(link);
+        return ResponseEntity.ok("Link deleted");
+    }
+
+    public ResponseEntity<?> createNewLink(NewLinkRequest newLinkRequest, String token) {
+        Link newLink = new Link();
+        newLink.setUser(userService.findUserByLogin(jwtTokenUtils.getUsernameWhitsBearer(token)));
+        newLink.setOrigin(newLinkRequest.getLink());
+        createLink(newLink);
+        linkRedisRepo.set(newLink);
+        linkSQLRepo.save(newLink);
+        log.info("user saved link :\n" + newLink);
+        return ResponseEntity.ok("Link saved");
+    }
+
+    public ResponseEntity<?> getLinks(String token) {
+        List<LinkResponse> links = linkSQLRepo.findByUser(userService.findUserByLogin(jwtTokenUtils.getUsernameWhitsBearer(token))).stream().map(LinkResponse::new).toList();
+        return ResponseEntity.ok(links);
+    }
+    public ResponseEntity<?> putLink(IdLinkRequest idLinkRequest, String token) {
+        Link link = linkSQLRepo.findById(idLinkRequest.getId()).orElse(null);
+        if(link == null){
+            log.warn("link with this id does not exist:"+idLinkRequest.getId());
+            return ResponseEntity.status(203).body("link with this id does not exist:"+idLinkRequest.getId());
+        }
+        if(!Objects.equals(link.getUser().getLogin(), jwtTokenUtils.getUsernameWhitsBearer(token))){
+            log.warn("link does not belong to user id link:" + idLinkRequest.getId() + ", username:" + jwtTokenUtils.getUsernameWhitsBearer(token));
+            return ResponseEntity.status(203).body("link does not belong to user:"+idLinkRequest.getId());
+        }
+        if(link.isActive()){
+            link.setActive(false);
+            linkSQLRepo.save(link);
+            return ResponseEntity.ok("Link disable");
+        }else {
+            link.setActive(true);
+            linkSQLRepo.save(link);
+            return ResponseEntity.ok("Link enable");
+        }
     }
 }

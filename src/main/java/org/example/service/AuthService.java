@@ -1,11 +1,10 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.JwtRequest;
-import org.example.dto.JwtResponse;
-import org.example.dto.RegistrationUserDto;
+import org.example.dtos.jwt.JwtRequest;
+import org.example.dtos.jwt.JwtResponse;
+import org.example.dtos.user.RegistrationUserDto;
 import org.example.jwt.JwtTokenUtils;
-import org.example.model.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
