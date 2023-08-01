@@ -27,7 +27,7 @@ public class UserController {
         model.addAttribute("newUser",new User());
         return "sign-up";
     }
-    @PostMapping("/sign-up")
+    @PostMapping("/sign-up*")
     public String registration(User user){
         if(userService.userIsExistsByLoginAndPassword(user)){
             return "sign-up";
