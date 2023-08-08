@@ -9,15 +9,19 @@ import redis.clients.jedis.JedisPool;
 @Component
 public class LinkRedisRepo {
     private static final Logger log = Logger.getLogger(LinkRedisRepo.class);
-    private static JedisPool pool;
+    private static final JedisPool pool = new JedisPool("localhost", 6379);
+    private static Jedis jedis ;
     static {
         try{
-            pool = new JedisPool("localhost", 6379);
+            jedis = pool.getResource();
         }catch (Exception e){
             log.fatal("Error connecting to Redis");
+            System.exit(1);
+        } finally {
+            log.info("Redis connect");
         }
     }
-    private static Jedis jedis = pool.getResource();
+
     public void set(Link link){
         jedis.set(link.getId(), link.getOrigin());
     }

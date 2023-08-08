@@ -4,6 +4,7 @@ import javax.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Set;
 
 @Entity
@@ -24,6 +25,13 @@ public class User implements Serializable {
     @OneToMany
     @JoinColumn(name = "id_link")
     private Set<Link> items;
+    @ManyToMany
+    @JoinTable(
+            name = "users_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Collection<Role> roles;
     @Transient
     private String rPassword;
     public String toString() {
