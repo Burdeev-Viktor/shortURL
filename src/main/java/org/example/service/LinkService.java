@@ -127,10 +127,12 @@ public class LinkService {
         }
         if(link.isActive()){
             link.setActive(false);
+            linkRedisRepo.del(link.getId());
             linkSQLRepo.save(link);
             return ResponseEntity.ok("Link disable");
         }else {
             link.setActive(true);
+            linkRedisRepo.set(link);
             linkSQLRepo.save(link);
             return ResponseEntity.ok("Link enable");
         }

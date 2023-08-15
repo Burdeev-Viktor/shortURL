@@ -1,6 +1,5 @@
 package org.example.config;
 
-import org.example.service.UserDetailsService;
 import org.example.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
