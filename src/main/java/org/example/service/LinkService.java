@@ -39,6 +39,9 @@ public class LinkService {
         log.info("anonym saved link :\n" + link);
         return link;
     }
+    public void saveLinkToRedis(Link link){
+        linkRedisRepo.set(link);
+    }
     public String findFastLink(String key){
         return linkRedisRepo.get(key);
     }
@@ -115,6 +118,7 @@ public class LinkService {
         List<LinkResponse> links = linkSQLRepo.findByUser(userService.findUserByLogin(jwtTokenUtils.getUsernameWhitsBearer(token))).stream().map(LinkResponse::new).toList();
         return ResponseEntity.ok(links);
     }
+
     public ResponseEntity<?> putLink(IdLinkRequest idLinkRequest, String token) {
         Link link = linkSQLRepo.findById(idLinkRequest.getId()).orElse(null);
         if(link == null){
@@ -136,5 +140,22 @@ public class LinkService {
             linkSQLRepo.save(link);
             return ResponseEntity.ok("Link enable");
         }
+    }
+    public int deleteOldLinks(Date now){
+        List<Link> oldLinks = linkSQLRepo.getOldLinks(now);
+        oldLinks.stream().map(link -> {
+         delLink(link);
+         return link;
+        }).toList();
+        return oldLinks.size();
+    }
+    public List<Link> getAllEnable(){
+        return linkSQLRepo.findAllByActive(true);
+    }
+    public long getSizeRedis(){
+        return linkRedisRepo.count();
+    }
+    public void delAllFromRedis(){
+        linkRedisRepo.delAll();
     }
 }
