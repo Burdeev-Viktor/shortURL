@@ -15,6 +15,8 @@ import java.util.List;
 public interface LinkSQLRepo extends JpaRepository<Link,String> {
     @Query(value = "SELECT * FROM links WHERE origin IS NULL LIMIT 1" ,nativeQuery = true)
     Link getFreeLink();
+    @Query(value = "SELECT COUNT(*) FROM links WHERE origin IS NULL" ,nativeQuery = true)
+    long getCountFreeLink();
     @Transactional
     @Modifying
     @Query(value = "UPDATE  links SET origin = NULL, date_del = NULL WHERE links.generated = ?1",nativeQuery = true)
