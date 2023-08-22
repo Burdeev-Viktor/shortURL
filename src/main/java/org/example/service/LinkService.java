@@ -50,7 +50,7 @@ public class LinkService {
         do {
             link.setId(randomGenerator.getRandomKey());
         }while (!checkUniqueness(link));
-
+        setDateDel(link);
     }
     public void createFreeLink(){
         Link link = new Link();
