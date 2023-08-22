@@ -42,4 +42,15 @@ public class AuthService {
         userService.createNewUser(registrationUserDto);
         return ResponseEntity.ok("User created");
     }
+
+    public ResponseEntity<?> refreshToken(String authorization) {
+        if(!jwtTokenUtils.isValidToken(authorization)){
+            return new ResponseEntity<>("Not valid token", HttpStatus.UNAUTHORIZED);
+        }
+        String refreshToken = jwtTokenUtils.refreshToken(authorization);
+        if(refreshToken == null){
+            return new ResponseEntity<>("Token expired refresh time", HttpStatus.UNAUTHORIZED);
+        }
+        return ResponseEntity.ok(new JwtResponse(refreshToken));
+    }
 }

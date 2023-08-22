@@ -8,6 +8,7 @@ import org.example.jwt.JwtTokenUtils;
 import org.example.model.Link;
 import org.example.repository.LinkSQLRepo;
 import org.example.repository.LinkRedisRepo;
+import org.example.service.business.RandomGenerator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -15,21 +16,20 @@ import java.util.*;
 
 @Service
 public class LinkService {
-    private static final long UPPER_RANGE = 3579345993194L;
-    private static final long LOWER_RANGE = 56800235584L;
-    private static final String BASE62_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    private static final int BASE62_BASE = BASE62_ALPHABET.length();
+
     private static  LinkSQLRepo linkSQLRepo;
     private final LinkRedisRepo linkRedisRepo;
     private final  UserService userService;
     private static final Logger log = Logger.getLogger(LinkService.class);
     private final JwtTokenUtils jwtTokenUtils;
+    private final RandomGenerator randomGenerator;
 
-    public LinkService(LinkSQLRepo linkSQLRepo, LinkRedisRepo linkRedisRepo, UserService userService, JwtTokenUtils jwtTokenUtils) {
+    public LinkService(LinkSQLRepo linkSQLRepo, LinkRedisRepo linkRedisRepo, UserService userService, JwtTokenUtils jwtTokenUtils, RandomGenerator randomGenerator) {
         LinkService.linkSQLRepo = linkSQLRepo;
         this.linkRedisRepo = linkRedisRepo;
         this.userService = userService;
         this.jwtTokenUtils = jwtTokenUtils;
+        this.randomGenerator = randomGenerator;
     }
 
     public Link save(Link link){
@@ -39,15 +39,26 @@ public class LinkService {
         log.info("anonym saved link :\n" + link);
         return link;
     }
+    public void saveLinkToRedis(Link link){
+        linkRedisRepo.set(link);
+    }
     public String findFastLink(String key){
         return linkRedisRepo.get(key);
     }
-    private static void createLink(Link link){
+    private void createLink(Link link){
         link.setActive(true);
         do {
-            link.setId(getRandomKey());
+            link.setId(randomGenerator.getRandomKey());
         }while (!checkUniqueness(link));
         setDateDel(link);
+    }
+    public void createFreeLink(){
+        Link link = new Link();
+        link.setActive(false);
+        do {
+            link.setId(randomGenerator.getRandomKey());
+        }while (!checkUniqueness(link));
+        linkSQLRepo.save(link);
     }
     private static void setDateDel(Link link){
         Date date = new Date();
@@ -56,24 +67,11 @@ public class LinkService {
         calendar.add(Calendar.YEAR,3);
         link.setDateDel(calendar.getTime());
     }
-    private static String getRandomKey(){
-        StringBuilder result = new StringBuilder();
-        long number = getRandomLong();
-        while (number >= BASE62_BASE) {
-            int i = (int)(number % BASE62_BASE);
-            result.append(BASE62_ALPHABET.charAt(i));
-            number = number / BASE62_BASE;
-        }
-        result.append(BASE62_ALPHABET.charAt((int) number));
-        return result.reverse().toString();
-    }
+
     private static boolean checkUniqueness(Link link){
      return linkSQLRepo.findById(link.getId()).isEmpty();
     }
-    private static long getRandomLong(){
-        Random random = new Random();
-        return random.nextLong(LOWER_RANGE,UPPER_RANGE);
-    }
+
     public void delLink(Link link){
         linkSQLRepo.delete(link);
         linkRedisRepo.del(link.getId());
@@ -101,10 +99,11 @@ public class LinkService {
     }
 
     public ResponseEntity<?> createNewLink(NewLinkRequest newLinkRequest, String token) {
-        Link newLink = new Link();
+        Link newLink = linkSQLRepo.getFreeLink();
+        newLink.setActive(true);
         newLink.setUser(userService.findUserByLogin(jwtTokenUtils.getUsernameWhitsBearer(token)));
         newLink.setOrigin(newLinkRequest.getLink());
-        createLink(newLink);
+        setDateDel(newLink);
         linkRedisRepo.set(newLink);
         linkSQLRepo.save(newLink);
         log.info("user saved link :\n" + newLink);
@@ -115,6 +114,7 @@ public class LinkService {
         List<LinkResponse> links = linkSQLRepo.findByUser(userService.findUserByLogin(jwtTokenUtils.getUsernameWhitsBearer(token))).stream().map(LinkResponse::new).toList();
         return ResponseEntity.ok(links);
     }
+
     public ResponseEntity<?> putLink(IdLinkRequest idLinkRequest, String token) {
         Link link = linkSQLRepo.findById(idLinkRequest.getId()).orElse(null);
         if(link == null){
@@ -127,12 +127,34 @@ public class LinkService {
         }
         if(link.isActive()){
             link.setActive(false);
+            linkRedisRepo.del(link.getId());
             linkSQLRepo.save(link);
             return ResponseEntity.ok("Link disable");
         }else {
             link.setActive(true);
+            linkRedisRepo.set(link);
             linkSQLRepo.save(link);
             return ResponseEntity.ok("Link enable");
         }
+    }
+    public int deleteOldLinks(Date now){
+        List<Link> oldLinks = linkSQLRepo.getOldLinks(now);
+        oldLinks.stream().map(link -> {
+         delLink(link);
+         return link;
+        }).toList();
+        return oldLinks.size();
+    }
+    public List<Link> getAllEnable(){
+        return linkSQLRepo.findAllByActive(true);
+    }
+    public long getSizeRedis(){
+        return linkRedisRepo.count();
+    }
+    public void delAllFromRedis(){
+        linkRedisRepo.delAll();
+    }
+    public long getCountFreeLinks(){
+        return linkSQLRepo.getCountFreeLink();
     }
 }

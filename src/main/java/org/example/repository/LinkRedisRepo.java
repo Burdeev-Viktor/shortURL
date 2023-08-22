@@ -31,4 +31,6 @@ public class LinkRedisRepo {
     public void del(String key){
         jedis.del(key);
     }
+    public long count(){ return jedis.dbSize(); }
+    public void delAll(){ jedis.flushAll();}
 }

@@ -1,5 +1,6 @@
 package org.example.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.example.service.LinkService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -10,12 +11,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Controller
+@RequiredArgsConstructor
 public class RedirectController {
     private final LinkService linkService;
 
-    public RedirectController(LinkService linkService) {
-        this.linkService = linkService;
-    }
     @ResponseStatus(HttpStatus.MOVED_PERMANENTLY)
     @RequestMapping(value = "r/{id}",method = RequestMethod.GET)
     public String redirect(@PathVariable String id){
