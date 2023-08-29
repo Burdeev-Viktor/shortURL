@@ -1,4 +1,4 @@
-package org.example.jobs;
+package com.example.jobeserver.jobs;
 
 import org.apache.log4j.Logger;
 import org.example.service.LinkService;
@@ -42,5 +42,5 @@ public class Job {
         }
         log.info("end of creating free links created:" + createOfOneJob);
     }
-    
+
 }
