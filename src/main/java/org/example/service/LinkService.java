@@ -43,7 +43,11 @@ public class LinkService {
         linkRedisRepo.set(link);
     }
     public String findFastLink(String key){
-        return linkRedisRepo.get(key);
+        String origin = linkRedisRepo.get(key);
+        if(origin == null){
+            return linkSQLRepo.findOriginById(key);
+        }
+        return origin;
     }
     private void createLink(Link link){
         link.setActive(true);
@@ -145,8 +149,8 @@ public class LinkService {
         }).toList();
         return oldLinks.size();
     }
-    public List<Link> getAllEnable(){
-        return linkSQLRepo.findAllByActive(true);
+    public List<Link> getActiveLinksByLimit(long lower,long upper){
+        return linkSQLRepo.getActiveLinksByLimit(lower,upper);
     }
     public long getSizeRedis(){
         return linkRedisRepo.count();
@@ -156,5 +160,8 @@ public class LinkService {
     }
     public long getCountFreeLinks(){
         return linkSQLRepo.getCountFreeLink();
+    }
+    public long getCountActiveLinks(){
+        return linkSQLRepo.getCountActiveLink();
     }
 }

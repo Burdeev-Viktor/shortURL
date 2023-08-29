@@ -14,6 +14,7 @@ public class LinkRedisRepo {
     static {
         try{
             jedis = pool.getResource();
+            jedis.configSet("timeout","0");
         }catch (Exception e){
             log.fatal("Error connecting to Redis");
             System.exit(1);
@@ -26,11 +27,18 @@ public class LinkRedisRepo {
         jedis.set(link.getId(), link.getOrigin());
     }
     public String get(String key){
-        return jedis.get(key);
+        Jedis jedisGet = pool.getResource();
+        return jedisGet.get(key);
     }
     public void del(String key){
         jedis.del(key);
     }
     public long count(){ return jedis.dbSize(); }
-    public void delAll(){ jedis.flushAll();}
+    public void delAll(){
+        try {
+            jedis.flushAll();
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+        }
 }
