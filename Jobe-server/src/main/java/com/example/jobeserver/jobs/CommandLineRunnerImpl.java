@@ -1,11 +1,10 @@
-package org.example.service.business;
+package com.example.jobeserver.jobs;
 
 import lombok.AllArgsConstructor;
 import org.apache.log4j.Logger;
 import org.example.model.Link;
 import org.example.service.LinkService;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
